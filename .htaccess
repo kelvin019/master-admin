@@ -1,0 +1,8 @@
+Options -Indexes
+
+<FilesMatch "^(config\.php|\.env(\.example)?|composer\.(json|lock)|.*\.sql|.*\.log)$">
+    Require all denied
+</FilesMatch>
+
+RewriteEngine On
+RewriteRule ^(vendor|lib|storage)/ - [F,L]

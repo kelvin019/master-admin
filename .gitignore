@@ -1,0 +1,18 @@
+# Local credentials and environment-specific configuration
+admin.login.txt
+config.php
+.env
+.env.*
+!.env.example
+
+# Runtime data and backups
+storage/
+uploads/
+
+# Composer dependencies are installed from composer.lock
+vendor/
+
+# Editor and OS files
+.DS_Store
+.idea/
+.vscode/

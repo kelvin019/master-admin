@@ -1,0 +1,8 @@
+{
+    "name": "master/cms-admin",
+    "description": "Reusable admin CMS foundation",
+    "type": "project",
+    "require": {
+        "phpmailer/phpmailer": "^7.1"
+    }
+}
