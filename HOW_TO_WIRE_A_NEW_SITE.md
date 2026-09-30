@@ -297,10 +297,9 @@ RewriteRule ^project/([^/]+)/?$ project.php?slug=$1 [L,QSA]
 Adjust `RewriteBase` per environment: it must be `/` at the domain root in
 production, and `/<foldername>/` locally under AMPPS if the site lives in a
 subfolder of `htdocs`/`www`. Derive it dynamically instead of hardcoding where
-possible (see how `farm.exaltedgroup.local/includes/site.php`'s
-`site_base_path()` derives this from `APP_URL`/document root, so the same code
-works unmodified in both places) — this exact hardcoding-vs-production mistake
-has bitten this project before.
+possible. A small `site_base_path()` helper that derives the base path from the
+current request or application URL lets the same code work locally and in
+production without manual link changes.
 
 Never link to `*.php` from within site templates — always use the clean path
 (`url('project/'.$row['slug'])` style helper), the same convention every other
@@ -356,70 +355,20 @@ See `config.php` in this folder for their exact field definitions.
 
 ---
 
-## Reference: inventory of sites built with our custom admins
+## Choosing the right admin architecture
 
-This is the confirmed list of sites built with one of our own custom admins
-(as opposed to other, unrelated projects that happen to live in the same
-`/Applications/AMPPS/www/` folder). They fall into three lineages — check
-which one a given site belongs to before assuming this doc's instructions
-apply as-is, since the module/config shape and file layout differ between
-them and instructions from one don't transfer cleanly to another.
+This repository is designed for content-led websites. Its generic module
+engine creates list, create, edit and archive screens from the field
+definitions in `config.php`, making it suitable for pages, projects, services,
+team members, testimonials, galleries and similar content.
 
-### Lineage A — this master admin (`config.php` with a `modules` array)
+Before starting a new build, confirm that this data model matches the site:
 
-Content-module CMS engine: generic list/create/edit/trash screens generated
-from field definitions in `config.php`, no e-commerce concept.
-
-- **`vorcentaglobalconstruction.local`** — construction company site (Services,
-  Projects, Team, Testimonials, FAQs, Posts, Galleries modules). Built and
-  documented in this conversation. The first production copy made from this
-  master template.
-
-### Lineage B — older lightweight gallery/content admin (`list.php` / `edit.php` / `delete.php`, `config.php` with `site` + `brand` sections)
-
-A simpler, earlier custom admin: flat list/edit/delete CRUD per content type
-(no generic module-driven engine), a gallery-upload feature, and a
-`site`/`brand`-keyed config rather than a `modules` array.
-
-- **`pgmnigeria.local`** — PGM Nigeria (governance/programmes org site)
-- **`resourcefield.local`**
-- **`windforcesafeguards.local`**
-- **`zeitgeistaesthetics.local`**
-- **`culturepreneurclusters.local`**
-
-All five share near-identical admin file sizes and listings — almost
-certainly copies of one shared template, distinct from this master admin.
-
-### Lineage C — e-commerce admin (products, orders, customers, cart/checkout, delivery)
-
-- **`farm.exaltedgroup.local`** — lean, purpose-sized commerce admin. ~21
-  small admin files (25KB total). Schema: `products`, `categories`, `orders`/
-  `order_items`/`order_status_history`, `customers`, `coupons`, `riders`
-  (delivery tracking), `inventory_log`, `payment_transactions`, `reviews`,
-  plus separate `content_pages`/`farm_posts`/`farm_services` tables for the
-  non-commerce pages. Config via `.env`, not `config.php`. **The reference
-  to use for "normal content + a narrow single-category product line +
-  delivery"** — e.g. the fertilizer-only shop under discussion.
-
-### Not part of our admin lineages
-
-- **`osuntourismpreneur.local`** — a service/directory finder (tourism
-  amenities, bookings, claims). It has its own bespoke `config.php` and
-  `admin/` folder, but doesn't share a real lineage with Lineage A or B —
-  don't use it as a template for a new site.
-
-### How to use this when starting new work
-
-1. Identify what the new project actually needs: pure content (→ Lineage A,
-   this master admin) or a narrow single-product-line shop with delivery
-   (→ Lineage C, `farm.exaltedgroup.local`).
-2. Don't mix lineages inside one project (e.g. don't bolt this master admin's
-   `modules` engine onto `farm.exaltedgroup.local`'s schema) — pick the one
-   whose existing data model already matches the requirement, and extend it,
-   rather than gluing two admin engines together.
-3. If unsure which lineage a given site belongs to, check for a `modules`
-   array in `config.php` (Lineage A), `list.php`/`edit.php`/`delete.php` file
-   names with a `site`/`brand` config (Lineage B), or `products`/`orders`
-   tables plus `cart.php`/`checkout.php` (Lineage C).
-4. Update this list every time a new site is added, so it stays a reliable
-   inventory rather than going stale.
+1. Use this master admin for a content-focused website with repeatable content
+   types and media management.
+2. Use a dedicated commerce platform when the project needs products, orders,
+   payments, stock management or delivery workflows.
+3. Do not combine unrelated admin systems in one website. Choose the data
+   model that matches the project, then extend it deliberately.
+4. Keep client names, domains, credentials, local paths and project-specific
+   notes out of this reusable guide and out of public repositories.
